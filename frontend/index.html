@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligent Water Distribution System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .hero-section {
+      background: linear-gradient(135deg, #0b1528 0%, #003056 50%, #005082 100%);
+      color: white;
+      padding: 6rem 2rem 5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      padding: 0.4rem 1rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #7dd3fc;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-bottom: 1.5rem;
+    }
+    .hero-title {
+      font-size: 3.25rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.03em;
+    }
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: #94a3b8;
+      max-width: 780px;
+      margin: 0 auto 2.5rem auto;
+      line-height: 1.6;
+    }
+    .hero-cta {
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .feature-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 2.25rem;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-300);
+    }
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .architecture-box {
+      background: #0f172a;
+      color: #38bdf8;
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      box-shadow: var(--shadow-md);
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon">
+        <i class="fas fa-droplet"></i>
+      </div>
+      <div class="nav-brand-text">
+        <h1>IWDS Core</h1>
+        <p>Intelligent Water System</p>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="/" class="active"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="#features"><i class="fas fa-layer-group"></i> Architecture</a></li>
+      <li><a href="#modules"><i class="fas fa-cubes"></i> Modules</a></li>
+      <li><a href="/login/"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+      <li><a href="/register/"><i class="fas fa-user-plus"></i> Register</a></li>
+    </ul>
+
+    <div class="nav-user">
+      <a href="/login/" class="btn btn-secondary btn-sm"><i class="fas fa-user"></i> Citizen Portal</a>
+      <a href="/admin/dashboard/" class="btn btn-primary btn-sm"><i class="fas fa-shield-halved"></i> Admin Control</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <div class="hero-badge">
+      <i class="fas fa-bolt"></i> C Priority Queue & Graph Engine + Django REST Framework
+    </div>
+    <h1 class="hero-title">
+      Next-Gen Intelligent<br>Water Distribution System
+    </h1>
+    <p class="hero-subtitle">
+      Automated, priority-based municipal water allocation, real-time tank storage telemetry,
+      anomaly-based pipeline leak detection, and scheduled citizen delivery management.
+    </p>
+    <div class="hero-cta">
+      <a href="/user/dashboard/" class="btn btn-primary" style="padding: 0.85rem 1.85rem; font-size: 1rem;">
+        <i class="fas fa-gauge"></i> Launch Citizen Dashboard
+      </a>
+      <a href="/admin/dashboard/" class="btn btn-secondary" style="padding: 0.85rem 1.85rem; font-size: 1rem;">
+        <i class="fas fa-microchip"></i> Admin Command Center
+      </a>
+    </div>
+  </header>
+
+  <!-- Core Highlights -->
+  <section class="container" id="features" style="margin-top: -3rem; position: relative; z-index: 10;">
+    <div class="grid-cols-3">
+      
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#e0f2fe; color:#0284c7;">
+          <i class="fas fa-diagram-project"></i>
+        </div>
+        <h3 style="margin-bottom:0.6rem;">C Data Structures Engine</h3>
+        <p style="color:var(--text-muted); font-size:0.9rem;">
+          Implements binary Min-Heap <strong>Priority Queue</strong> (Emergency & Hospital prioritized over domestic/commercial),
+          <strong>Linked Lists</strong>, and <strong>Graph Topology</strong> for pipeline loss analysis.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ecfdf5; color:#059669;">
+          <i class="fas fa-water"></i>
+        </div>
+        <h3 style="margin-bottom:0.6rem;">Real-Time Tank Telemetry</h3>
+        <p style="color:var(--text-muted); font-size:0.9rem;">
+          Live storage percentage tracking: <code>(Current Water / Capacity) × 100</code>.
+          Dynamic cylinder visual gauges with multi-reservoir aggregation across municipal zones.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fef2f2; color:#dc2626;">
+          <i class="fas fa-magnifying-glass-chart"></i>
+        </div>
+        <h3 style="margin-bottom:0.6rem;">Anomaly Leak Detection</h3>
+        <p style="color:var(--text-muted); font-size:0.9rem;">
+          Continuously compares <code>Tank Output</code> vs <code>Area Inflow</code>.
+          Automatically detects and flags unaccounted pipeline conveyance losses exceeding threshold limits.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- System Architecture Section -->
+  <section class="container" style="padding: 4rem 2rem;" id="modules">
+    <div class="card" style="padding: 2.5rem;">
+      <div style="text-align:center; max-width:700px; margin:0 auto 2.5rem auto;">
+        <span class="badge badge-allocated" style="margin-bottom:0.5rem;">End-to-End Architecture</span>
+        <h2 style="font-size:2rem; margin-top:0.5rem;">Unified Full-Stack Integration</h2>
+        <p style="color:var(--text-muted);">
+          Django manages security, authentication, and REST APIs, while the compiled C library executes
+          the heavy mathematical allocation logic via <code>ctypes</code>.
+        </p>
+      </div>
+
+      <div class="grid-cols-2">
+        <div class="architecture-box">
+<pre style="margin:0;">
+             INTELLIGENT WATER
+            DISTRIBUTION SYSTEM
+                     |
+       +-------------+-------------+
+       |                           |
+    FRONTEND                    BACKEND
+  HTML + CSS + JS            Python Django
+       |                           |
+       |                +----------+----------+
+       |                |                     |
+       |          Django REST API        C Algorithms
+       |                |                     |
+       |                |              Data Structures
+       |                |              (Priority Queue)
+       |                +----------+----------+
+       |                           |
+       |                      SQL DATABASE
+       |                   SQLite / MySQL / PG
+       |
+  User / Admin
+</pre>
+        </div>
+
+        <div style="display:flex; flex-direction:column; justify-content:center; gap:1.25rem;">
+          <div style="display:flex; gap:1rem; align-items:flex-start;">
+            <div style="width:36px; height:36px; border-radius:50%; background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">1</div>
+            <div>
+              <h4 style="font-size:1rem; margin-bottom:0.25rem;">Citizen Water Requests</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted);">Citizens submit volume requests with priority classification (Emergency, Medical, Household, Commercial).</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:1rem; align-items:flex-start;">
+            <div style="width:36px; height:36px; border-radius:50%; background:#ecfdf5; color:#059669; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">2</div>
+            <div>
+              <h4 style="font-size:1rem; margin-bottom:0.25rem;">C Allocation Algorithm</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted);">When available water is limited, C Priority Queue guarantees 100% supply to Hospitals/Emergencies and rationalizes residential quotas.</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:1rem; align-items:flex-start;">
+            <div style="width:36px; height:36px; border-radius:50%; background:#fef3c7; color:#b45309; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">3</div>
+            <div>
+              <h4 style="font-size:1rem; margin-bottom:0.25rem;">Automated Scheduling & Alerts</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted);">Generates timed distribution slots and delivers real-time notifications to residents before valve release.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="background: white; border-top: 1px solid var(--border-color); padding: 2.5rem 2rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 700; color: var(--primary-900);">
+      <i class="fas fa-droplet text-cyan"></i> Intelligent Water Distribution System
+    </div>
+    <p>College Full-Stack Capstone Project &copy; 2026. Built with HTML5, CSS3, JavaScript, Django REST Framework, and C Data Structures.</p>
+  </footer>
+
+  <script src="/static/js/auth.js"></script>
+</body>
+</html>

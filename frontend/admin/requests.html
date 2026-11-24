@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Requests - Intelligent Water Distribution</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar" style="background:#070f1e; border-bottom:1px solid #1e293b;">
+    <a href="/admin/dashboard/" class="nav-brand">
+      <div class="nav-brand-icon" style="background: linear-gradient(135deg, #0284c7, #00f0ff); color:#070f1e;">
+        <i class="fas fa-microchip"></i>
+      </div>
+      <div class="nav-brand-text">
+        <h1 style="color:white; -webkit-text-fill-color: initial;">IWDS Admin Engine</h1>
+        <p style="color:#38bdf8;">Municipal Water Operations</p>
+      </div>
+    </a>
+    <div class="nav-user">
+      <a href="/admin/dashboard/" class="btn btn-secondary btn-sm" style="background:#1e293b; color:white; border-color:#334155;"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" style="background:#1e293b; color:white; border-color:#334155;"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div>
+        <h4>Command Center</h4>
+        <ul class="admin-nav-menu">
+          <li class="admin-nav-item"><a href="/admin/dashboard/"><i class="fas fa-chart-pie"></i> Overview Dashboard</a></li>
+          <li class="admin-nav-item active"><a href="/admin/requests/"><i class="fas fa-inbox"></i> Water Requests</a></li>
+          <li class="admin-nav-item"><a href="/admin/distribution/"><i class="fas fa-route"></i> Distribution Runs</a></li>
+          <li class="admin-nav-item"><a href="/admin/tanks/"><i class="fas fa-tower-observation"></i> Tank Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/areas/"><i class="fas fa-map-location-dot"></i> Area Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/leakage/"><i class="fas fa-triangle-exclamation"></i> Leakage & Anomaly</a></li>
+          <li class="admin-nav-item"><a href="/admin/users/"><i class="fas fa-users"></i> User Directory</a></li>
+          <li class="admin-nav-item"><a href="/admin/reports/"><i class="fas fa-file-invoice"></i> Reports & Prediction</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="admin-main-content">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 2rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h2><i class="fas fa-inbox text-cyan"></i> Citizen Water Requests Management</h2>
+          <p style="color:var(--text-muted);">Review pending municipal demands, verify priority categories, or execute the C Priority Queue algorithm.</p>
+        </div>
+        <button onclick="executeDistributionAlgorithm()" class="btn btn-primary">
+          <i class="fas fa-bolt"></i> Run C Allocation Algorithm
+        </button>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+        <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+          <label style="font-weight:700; font-size:0.85rem; color:var(--text-muted);"><i class="fas fa-filter"></i> Filter Status:</label>
+          <button class="btn btn-secondary btn-sm" onclick="filterRequests('')">All</button>
+          <button class="btn btn-secondary btn-sm" onclick="filterRequests('PENDING')">Pending</button>
+          <button class="btn btn-secondary btn-sm" onclick="filterRequests('ALLOCATED')">Allocated</button>
+          <button class="btn btn-secondary btn-sm" onclick="filterRequests('APPROVED')">Approved</button>
+          <button class="btn btn-secondary btn-sm" onclick="filterRequests('REJECTED')">Rejected</button>
+        </div>
+      </div>
+
+      <!-- Requests Table -->
+      <div class="card">
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Req ID</th>
+                <th>Citizen Name</th>
+                <th>Area</th>
+                <th>Priority</th>
+                <th>Demanded</th>
+                <th>Allocated</th>
+                <th>Required Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-requests-table-body">
+              <tr><td colspan="9" style="text-align:center; padding:2rem; color:#94a3b8;">Loading requests...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script>
+    const prioNames = ['', 'Emergency', 'Hospital', 'Essential', 'Household', 'Commercial', 'Low'];
+
+    async function loadRequests(statusFilter = '') {
+      try {
+        let url = '/api/water/requests/';
+        if (statusFilter) url += `?status=${statusFilter}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const tbody = document.getElementById('admin-requests-table-body');
+        
+        if (data.success && data.requests.length > 0) {
+          tbody.innerHTML = data.requests.map(r => {
+            const p = r.priority;
+            const prioBadge = p === 1 ? 'badge-emergency' : p === 2 ? 'badge-hospital' : p === 3 ? 'badge-essential' : p === 4 ? 'badge-household' : 'badge-commercial';
+            const statusBadge = r.status === 'ALLOCATED' || r.status === 'APPROVED' ? 'badge-allocated' : r.status === 'REJECTED' ? 'badge-rejected' : 'badge-pending';
+
+            return `
+              <tr>
+                <td>#${r.id}</td>
+                <td><strong>${r.user_name || 'Citizen'}</strong><br><small style="color:var(--text-muted);">${r.user_email || ''}</small></td>
+                <td>${r.area_name || '-'}</td>
+                <td><span class="badge ${prioBadge}">P${p}: ${prioNames[p] || 'Prio'}</span></td>
+                <td><strong>${r.requested_quantity} L</strong></td>
+                <td>${r.allocated_quantity > 0 ? '<strong>' + r.allocated_quantity + ' L</strong>' : '-'}</td>
+                <td>${r.request_date}</td>
+                <td><span class="badge ${statusBadge}">${r.status}</span></td>
+                <td>
+                  <div style="display:flex; gap:0.4rem;">
+                    <button onclick="updateRequestStatus(${r.id}, 'APPROVED', ${r.requested_quantity})" class="btn btn-success btn-sm" title="Approve Request">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button onclick="updateRequestStatus(${r.id}, 'REJECTED', 0)" class="btn btn-danger btn-sm" title="Reject Request">
+                      <i class="fas fa-xmark"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:2rem; color:#94a3b8;">No requests matching criteria.</td></tr>`;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function filterRequests(status) {
+      loadRequests(status);
+    }
+
+    async function updateRequestStatus(id, newStatus, allocQty) {
+      try {
+        const res = await fetch(`/api/water/requests/${id}/`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus, allocated_quantity: allocQty })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Request #${id} marked as ${newStatus}`, 'success');
+          loadRequests();
+        } else {
+          showToast('Failed to update request', 'danger');
+        }
+      } catch (e) {
+        showToast('Error connecting to backend', 'danger');
+      }
+    }
+
+    async function executeDistributionAlgorithm() {
+      try {
+        showToast('Triggering C Priority Queue Allocation...', 'info');
+        const res = await fetch('/api/distribution/run-algorithm/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        const d = await res.json();
+        if (d.success) {
+          showToast(d.message, 'success');
+          loadRequests();
+        } else {
+          showToast(d.message || 'Algorithm error', 'danger');
+        }
+      } catch (e) {
+        showToast('Server communication error', 'danger');
+      }
+    }
+
+    loadRequests();
+  </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Command Center - Intelligent Water Distribution System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar" style="background:#070f1e; border-bottom:1px solid #1e293b;">
+    <a href="/admin/dashboard/" class="nav-brand">
+      <div class="nav-brand-icon" style="background: linear-gradient(135deg, #0284c7, #00f0ff); color:#070f1e;">
+        <i class="fas fa-microchip"></i>
+      </div>
+      <div class="nav-brand-text">
+        <h1 style="color:white; -webkit-text-fill-color: initial;">IWDS Admin Engine</h1>
+        <p style="color:#38bdf8;">Municipal Water Operations</p>
+      </div>
+    </a>
+
+    <div class="nav-user">
+      <div class="user-profile-pill" style="background:#0f172a; border-color:#334155; color:white;">
+        <div class="user-avatar" style="background:#0284c7;">A</div>
+        <div class="user-info-text">
+          <div class="user-info-name" style="color:#e2e8f0;">System Administrator</div>
+          <div class="user-info-role" style="color:#38bdf8;">Chief Engineer</div>
+        </div>
+      </div>
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" style="background:#1e293b; border-color:#334155; color:#e2e8f0;">
+        <i class="fas fa-arrow-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+      <div>
+        <h4>Command Center</h4>
+        <ul class="admin-nav-menu">
+          <li class="admin-nav-item active"><a href="/admin/dashboard/"><i class="fas fa-chart-pie"></i> Overview Dashboard</a></li>
+          <li class="admin-nav-item"><a href="/admin/requests/"><i class="fas fa-inbox"></i> Water Requests</a></li>
+          <li class="admin-nav-item"><a href="/admin/distribution/"><i class="fas fa-route"></i> Distribution Runs</a></li>
+          <li class="admin-nav-item"><a href="/admin/tanks/"><i class="fas fa-tower-observation"></i> Tank Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/areas/"><i class="fas fa-map-location-dot"></i> Area Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/leakage/"><i class="fas fa-triangle-exclamation"></i> Leakage & Anomaly</a></li>
+          <li class="admin-nav-item"><a href="/admin/users/"><i class="fas fa-users"></i> User Directory</a></li>
+          <li class="admin-nav-item"><a href="/admin/reports/"><i class="fas fa-file-invoice"></i> Reports & Prediction</a></li>
+        </ul>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.04); border:1px solid #1e293b; border-radius:var(--radius-md); padding:1rem; text-align:center;">
+        <div style="font-size:0.75rem; text-transform:uppercase; color:#94a3b8; font-weight:700;">Algorithm Core</div>
+        <div style="font-size:0.85rem; color:#38bdf8; font-family:var(--font-mono); font-weight:700; margin-top:0.25rem;">C Min-Heap & Graph</div>
+        <div style="font-size:0.75rem; color:#10b981; margin-top:0.2rem;"><i class="fas fa-circle-check"></i> ctypes DLL Integrated</div>
+      </div>
+    </aside>
+
+    <!-- Admin Main Body -->
+    <main class="admin-main-content">
+      
+      <!-- C Engine Control Banner (Sections 12, 14, 15, 16) -->
+      <div class="algorithm-hero-box">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <h2>
+              <i class="fas fa-bolt text-cyan"></i> Intelligent Water Allocation Engine
+              <span class="c-tag">C Data Structures</span>
+            </h2>
+            <p style="color:#94a3b8; font-size:0.95rem; margin-top:0.5rem; max-width:720px;">
+              Executes multi-tier priority queue allocation (Emergency & Hospital prioritized over domestic/commercial).
+              Calculates pipeline conveyance loss and generates automated valve schedules.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.75rem;">
+            <button id="btn-execute-algo" onclick="executeDistributionAlgorithm()" class="btn btn-primary" style="padding:0.85rem 1.6rem; font-size:1rem; background:linear-gradient(135deg, #0284c7, #00f0ff); color:#070f1e; font-weight:800;">
+              <i class="fas fa-bolt"></i> Run C Allocation Algorithm
+            </button>
+            <button onclick="openLeakTestModal()" class="btn btn-secondary" style="background:#1e293b; color:white; border-color:#334155;">
+              <i class="fas fa-magnifying-glass-chart"></i> Test Leak Anomaly
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Algorithm Execution Results Box (Injected dynamically) -->
+      <div id="algo-results-container" style="display:none; margin-bottom:2rem;"></div>
+
+      <!-- Section 10: 4 Key Summary Cards -->
+      <div class="grid-cols-4" style="margin-bottom: 2rem;">
+        
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Total Users</span>
+            <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+          </div>
+          <div class="stat-value" id="admin-total-users">1,250</div>
+          <div class="stat-subtext text-muted">
+            Registered citizen accounts
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Active Users</span>
+            <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+          </div>
+          <div class="stat-value" id="admin-active-users">980</div>
+          <div class="stat-subtext text-success">
+            <i class="fas fa-arrow-trend-up"></i> 78.4% active consumers
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Pending Requests</span>
+            <div class="stat-icon amber"><i class="fas fa-clock"></i></div>
+          </div>
+          <div class="stat-value" id="admin-pending-reqs" style="color:var(--warning);">35</div>
+          <div class="stat-subtext text-muted">
+            Queued for C allocation
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Available Water</span>
+            <div class="stat-icon purple"><i class="fas fa-water"></i></div>
+          </div>
+          <div class="stat-value" id="admin-avail-water">85,000 L</div>
+          <div class="stat-subtext text-muted">
+            Across 4 active reservoirs
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Section 11: Real-Time Tank Monitoring Cylinders Grid -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title"><i class="fas fa-tower-observation text-cyan"></i> Reservoir Tank Monitoring</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">Telemetry Formula: <code>Water Level % = (Current Level / Tank Capacity) × 100</code></p>
+          </div>
+          <a href="/admin/tanks/" class="btn btn-secondary btn-sm">Manage Tanks <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="grid-cols-4" id="admin-tanks-grid">
+          <!-- Tanks Gauges Rendered by JS -->
+          <div style="text-align:center; padding:2rem; color:#94a3b8; grid-column:span 4;">Loading reservoir levels...</div>
+        </div>
+      </div>
+
+      <!-- Section 10: Water Requests Breakdown & Analytics Charts -->
+      <div class="grid-cols-3" style="margin-bottom: 2rem;">
+        
+        <!-- Water Requests Status Summary (1 col) -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-inbox text-cyan"></i> Water Requests</h3>
+            <a href="/admin/requests/" class="btn btn-secondary btn-sm">View All</a>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.85rem; margin-top:0.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:#fffbeb; border-radius:var(--radius-md); border-left:4px solid var(--warning);">
+              <span style="font-weight:700; color:#b45309;">Pending Requests</span>
+              <span id="count-pending" style="font-size:1.25rem; font-weight:800; color:#b45309;">35</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:#eff6ff; border-radius:var(--radius-md); border-left:4px solid var(--primary-600);">
+              <span style="font-weight:700; color:#1d4ed8;">Approved / Allocated</span>
+              <span id="count-approved" style="font-size:1.25rem; font-weight:800; color:#1d4ed8;">120</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:#fef2f2; border-radius:var(--radius-md); border-left:4px solid var(--danger);">
+              <span style="font-weight:700; color:#b91c1c;">Rejected (Zero Quota)</span>
+              <span id="count-rejected" style="font-size:1.25rem; font-weight:800; color:#b91c1c;">8</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:#ecfdf5; border-radius:var(--radius-md); border-left:4px solid var(--success);">
+              <span style="font-weight:700; color:#047857;">Completed Deliveries</span>
+              <span id="count-completed" style="font-size:1.25rem; font-weight:800; color:#047857;">250</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7-Day Municipal Consumption Curve (2 cols) -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-chart-line text-cyan"></i> 7-Day Municipal Consumption Trend</h3>
+            <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">Measured in Litres</span>
+          </div>
+          <div style="height: 260px; position: relative;">
+            <canvas id="admin-trend-chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Additional Charts Row: Reservoir Capacities & Area Allocations -->
+      <div class="grid-cols-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-chart-bar text-cyan"></i> Reservoir Current Level vs Capacity</h3>
+          </div>
+          <div style="height: 240px; position: relative;">
+            <canvas id="admin-tank-comparison-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-chart-pie text-cyan"></i> Area Quota Distribution Ratio</h3>
+          </div>
+          <div style="height: 240px; position: relative;">
+            <canvas id="admin-area-doughnut"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL: Test Leakage Anomaly (Section 34) -->
+  <div class="modal-overlay" id="test-leakage-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-magnifying-glass-chart text-cyan"></i> Test Anomaly Leak Detection</h3>
+        <button class="modal-close-btn" onclick="closeLeakTestModal()">&times;</button>
+      </div>
+
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+        Tests Section 34 Anomaly Flow Analysis: Compares Tank Output vs Area Inflow.
+        If loss exceeds permissible conveyance loss (threshold), C engine flags pipeline anomaly.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">Tank Output Volume (Litres)</label>
+        <input type="number" id="sim-tank-output" class="form-control" value="10000" step="100">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Area Received Volume (Litres)</label>
+        <input type="number" id="sim-area-input" class="form-control" value="7800" step="100">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Normal Conveyance Loss Threshold (%)</label>
+        <input type="number" id="sim-threshold" class="form-control" value="8" step="0.5">
+      </div>
+
+      <div id="anomaly-result-box" style="display:none; margin:1rem 0;"></div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeLeakTestModal()">Close</button>
+        <button type="button" class="btn btn-primary" onclick="testLeakageAnomaly()"><i class="fas fa-play"></i> Run C Anomaly Check</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tank Management - Intelligent Water Distribution System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar" style="background:#070f1e; border-bottom:1px solid #1e293b;">
+    <a href="/admin/dashboard/" class="nav-brand">
+      <div class="nav-brand-icon" style="background: linear-gradient(135deg, #0284c7, #00f0ff); color:#070f1e;">
+        <i class="fas fa-microchip"></i>
+      </div>
+      <div class="nav-brand-text">
+        <h1 style="color:white; -webkit-text-fill-color: initial;">IWDS Admin Engine</h1>
+        <p style="color:#38bdf8;">Municipal Water Operations</p>
+      </div>
+    </a>
+    <div class="nav-user">
+      <a href="/admin/dashboard/" class="btn btn-secondary btn-sm" style="background:#1e293b; color:white; border-color:#334155;"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" style="background:#1e293b; color:white; border-color:#334155;"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div>
+        <h4>Command Center</h4>
+        <ul class="admin-nav-menu">
+          <li class="admin-nav-item"><a href="/admin/dashboard/"><i class="fas fa-chart-pie"></i> Overview Dashboard</a></li>
+          <li class="admin-nav-item"><a href="/admin/requests/"><i class="fas fa-inbox"></i> Water Requests</a></li>
+          <li class="admin-nav-item"><a href="/admin/distribution/"><i class="fas fa-route"></i> Distribution Runs</a></li>
+          <li class="admin-nav-item active"><a href="/admin/tanks/"><i class="fas fa-tower-observation"></i> Tank Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/areas/"><i class="fas fa-map-location-dot"></i> Area Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/leakage/"><i class="fas fa-triangle-exclamation"></i> Leakage & Anomaly</a></li>
+          <li class="admin-nav-item"><a href="/admin/users/"><i class="fas fa-users"></i> User Directory</a></li>
+          <li class="admin-nav-item"><a href="/admin/reports/"><i class="fas fa-file-invoice"></i> Reports & Prediction</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="admin-main-content">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 2rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h2><i class="fas fa-tower-observation text-cyan"></i> Municipal Reservoir & Tank Management</h2>
+          <p style="color:var(--text-muted);">Monitor reservoir levels, track percentage capacity formulas, and adjust stored reserve quantities.</p>
+        </div>
+        <button onclick="openAddTankModal()" class="btn btn-primary">
+          <i class="fas fa-plus-circle"></i> Add New Reservoir Tank
+        </button>
+      </div>
+
+      <!-- Tanks Grid (Section 11) -->
+      <div class="grid-cols-4" id="tanks-management-grid" style="margin-bottom: 2rem;">
+        <div style="text-align:center; padding:2rem; color:#94a3b8; grid-column:span 4;">Loading tanks...</div>
+      </div>
+
+      <!-- Tanks Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-list-check text-cyan"></i> Reservoir Inventory & Operations</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Tank ID</th>
+                <th>Reservoir Name</th>
+                <th>Location</th>
+                <th>Capacity (L)</th>
+                <th>Current Level (L)</th>
+                <th>Water Level %</th>
+                <th>Status</th>
+                <th>Quick Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tanks-table-body">
+              <tr><td colspan="8" style="text-align:center; padding:2rem; color:#94a3b8;">Loading table...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: Add New Tank -->
+  <div class="modal-overlay" id="add-tank-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-plus text-cyan"></i> Register New Reservoir Tank</h3>
+        <button class="modal-close-btn" onclick="closeAddTankModal()">&times;</button>
+      </div>
+
+      <form id="add-tank-form">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label class="form-label" for="new-tank-id">Tank Code / ID *</label>
+            <input type="text" id="new-tank-id" class="form-control" placeholder="e.g. T005" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-tank-name">Reservoir Name *</label>
+            <input type="text" id="new-tank-name" class="form-control" placeholder="e.g. Guindy South Tower" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-tank-loc">Location / Sector *</label>
+          <input type="text" id="new-tank-loc" class="form-control" placeholder="e.g. Guindy Industrial Estate" required>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label class="form-label" for="new-tank-cap">Capacity (Litres) *</label>
+            <input type="number" id="new-tank-cap" class="form-control" placeholder="100000" step="1000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-tank-cur">Current Level (Litres) *</label>
+            <input type="number" id="new-tank-cur" class="form-control" placeholder="75000" step="1000" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-tank-status">Status</label>
+          <select id="new-tank-status" class="form-control">
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+            <option value="OFFLINE">OFFLINE</option>
+          </select>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeAddTankModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save Tank</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script>
+    const addTankModal = document.getElementById('add-tank-modal');
+    window.openAddTankModal = () => addTankModal.classList.add('active');
+    window.closeAddTankModal = () => addTankModal.classList.remove('active');
+
+    async function loadTanks() {
+      try {
+        const res = await fetch('/api/tanks/');
+        const data = await res.json();
+        if (data.success && data.tanks) {
+          // Render Cylinders Grid
+          const grid = document.getElementById('tanks-management-grid');
+          grid.innerHTML = data.tanks.map(t => `
+            <div class="card tank-visual-card">
+              <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
+                <span style="font-weight:700;font-size:0.85rem;color:var(--primary-600);font-family:var(--font-mono);">${t.tank_id}</span>
+                <span class="badge ${t.status === 'ACTIVE' ? 'badge-allocated' : 'badge-rejected'}">${t.status}</span>
+              </div>
+              <div class="cylinder-gauge-wrapper">
+                <div class="cylinder-water-fill" style="height:${Math.min(100, t.water_level_percentage)}%;"></div>
+              </div>
+              <div class="gauge-percentage-badge">${t.water_level_percentage}%</div>
+              <h4 style="font-size:0.95rem;margin:0.25rem 0 0.15rem 0;">${t.tank_name}</h4>
+              <p style="font-size:0.75rem;color:var(--text-muted);">${t.location}</p>
+              <div style="font-size:0.8rem;margin-top:0.5rem;font-weight:600;color:var(--text-main);">
+                ${Number(t.current_level).toLocaleString()} / ${Number(t.capacity).toLocaleString()} L
+              </div>
+            </div>
+          `).join('');
+
+          // Render Table
+          const tbody = document.getElementById('tanks-table-body');
+          tbody.innerHTML = data.tanks.map(t => `
+            <tr>
+              <td><span style="font-family:var(--font-mono);font-weight:700;color:var(--primary-700);">${t.tank_id}</span></td>
+              <td><strong>${t.tank_name}</strong></td>
+              <td>${t.location}</td>
+              <td>${Number(t.capacity).toLocaleString()} L</td>
+              <td><strong>${Number(t.current_level).toLocaleString()} L</strong></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <div style="flex:1;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;min-width:60px;">
+                    <div style="height:100%;width:${t.water_level_percentage}%;background:#0284c7;"></div>
+                  </div>
+                  <strong>${t.water_level_percentage}%</strong>
+                </div>
+              </td>
+              <td><span class="badge ${t.status === 'ACTIVE' ? 'badge-allocated' : 'badge-rejected'}">${t.status}</span></td>
+              <td>
+                <button onclick="promptUpdateLevel(${t.id}, ${t.current_level})" class="btn btn-secondary btn-sm" title="Adjust Water Level">
+                  <i class="fas fa-pen-to-square"></i> Refill / Adjust
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function promptUpdateLevel(tankId, currentVal) {
+      const newVal = prompt(`Enter updated water volume in Litres:`, currentVal);
+      if (newVal !== null && !isNaN(newVal)) {
+        try {
+          const res = await fetch(`/api/tanks/${tankId}/`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ current_level: parseFloat(newVal) })
+          });
+          const d = await res.json();
+          if (d.success) {
+            showToast('Tank water level updated successfully!', 'success');
+            loadTanks();
+          } else {
+            showToast('Update failed', 'danger');
+          }
+        } catch (e) {
+          showToast('Error updating tank', 'danger');
+        }
+      }
+    }
+
+    document.getElementById('add-tank-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        tank_id: document.getElementById('new-tank-id').value,
+        tank_name: document.getElementById('new-tank-name').value,
+        location: document.getElementById('new-tank-loc').value,
+        capacity: parseFloat(document.getElementById('new-tank-cap').value),
+        current_level: parseFloat(document.getElementById('new-tank-cur').value),
+        status: document.getElementById('new-tank-status').value
+      };
+
+      try {
+        const res = await fetch('/api/tanks/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('New reservoir tank added successfully!', 'success');
+          closeAddTankModal();
+          document.getElementById('add-tank-form').reset();
+          loadTanks();
+        } else {
+          showToast('Failed to add tank', 'danger');
+        }
+      } catch (err) {
+        showToast('Error connecting to server', 'danger');
+      }
+    });
+
+    loadTanks();
+  </script>
+</body>
+</html>

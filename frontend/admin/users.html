@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Directory - Intelligent Water Distribution</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar" style="background:#070f1e; border-bottom:1px solid #1e293b;">
+    <a href="/admin/dashboard/" class="nav-brand">
+      <div class="nav-brand-icon" style="background: linear-gradient(135deg, #0284c7, #00f0ff); color:#070f1e;">
+        <i class="fas fa-microchip"></i>
+      </div>
+      <div class="nav-brand-text">
+        <h1 style="color:white; -webkit-text-fill-color: initial;">IWDS Admin Engine</h1>
+        <p style="color:#38bdf8;">Municipal Water Operations</p>
+      </div>
+    </a>
+    <div class="nav-user">
+      <a href="/admin/dashboard/" class="btn btn-secondary btn-sm" style="background:#1e293b; color:white; border-color:#334155;"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" style="background:#1e293b; color:white; border-color:#334155;"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div>
+        <h4>Command Center</h4>
+        <ul class="admin-nav-menu">
+          <li class="admin-nav-item"><a href="/admin/dashboard/"><i class="fas fa-chart-pie"></i> Overview Dashboard</a></li>
+          <li class="admin-nav-item"><a href="/admin/requests/"><i class="fas fa-inbox"></i> Water Requests</a></li>
+          <li class="admin-nav-item"><a href="/admin/distribution/"><i class="fas fa-route"></i> Distribution Runs</a></li>
+          <li class="admin-nav-item"><a href="/admin/tanks/"><i class="fas fa-tower-observation"></i> Tank Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/areas/"><i class="fas fa-map-location-dot"></i> Area Management</a></li>
+          <li class="admin-nav-item"><a href="/admin/leakage/"><i class="fas fa-triangle-exclamation"></i> Leakage & Anomaly</a></li>
+          <li class="admin-nav-item active"><a href="/admin/users/"><i class="fas fa-users"></i> User Directory</a></li>
+          <li class="admin-nav-item"><a href="/admin/reports/"><i class="fas fa-file-invoice"></i> Reports & Prediction</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="admin-main-content">
+      <div style="margin-bottom: 2rem;">
+        <h2><i class="fas fa-users text-cyan"></i> Registered Citizen & User Directory</h2>
+        <p style="color:var(--text-muted);">Manage registered consumers, household quotas, administrative personnel, and residence sectors.</p>
+      </div>
+
+      <!-- Users Table (Section 19) -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-address-book text-cyan"></i> Consumer Database</h3>
+          <div style="display:flex; gap:0.5rem;">
+            <button onclick="loadUsers('')" class="btn btn-secondary btn-sm">All</button>
+            <button onclick="loadUsers('USER')" class="btn btn-secondary btn-sm">Citizens</button>
+            <button onclick="loadUsers('ADMIN')" class="btn btn-secondary btn-sm">Admins</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Email Address</th>
+                <th>Mobile</th>
+                <th>Area Sector</th>
+                <th>House #</th>
+                <th>Daily Quota</th>
+                <th>Role</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <tr><td colspan="9" style="text-align:center; padding:2rem; color:#94a3b8;">Loading user directory...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script>
+    async function loadUsers(roleFilter = '') {
+      try {
+        let url = '/api/auth/all/';
+        if (roleFilter) url += `?role=${roleFilter}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const tbody = document.getElementById('users-table-body');
+        if (data.success && data.users) {
+          tbody.innerHTML = data.users.map(u => `
+            <tr>
+              <td>#${u.id}</td>
+              <td><strong>${u.name}</strong></td>
+              <td>${u.email}</td>
+              <td><span style="font-family:var(--font-mono);font-size:0.85rem;">${u.mobile}</span></td>
+              <td>${u.area_name || '-'}</td>
+              <td>${u.house_number || '-'}</td>
+              <td><strong>${u.daily_water_quota_litres} L</strong></td>
+              <td><span class="badge ${u.role === 'ADMIN' ? 'badge-emergency' : 'badge-allocated'}">${u.role}</span></td>
+              <td><span class="badge badge-allocated">${u.status}</span></td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

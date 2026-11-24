@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distribution Schedule - Intelligent Water Distribution</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/user.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon"><i class="fas fa-droplet"></i></div>
+      <div class="nav-brand-text">
+        <h1>IWDS Core</h1>
+        <p>Citizen Portal</p>
+      </div>
+    </a>
+    <div class="nav-user">
+      <a href="/user/dashboard/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="user-layout">
+    <aside class="user-sidebar">
+      <ul class="user-nav-menu">
+        <li class="user-nav-item"><a href="/user/dashboard/"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
+        <li class="user-nav-item"><a href="/user/request-water/"><i class="fas fa-hand-holding-droplet"></i> Request Water</a></li>
+        <li class="user-nav-item"><a href="/user/usage/"><i class="fas fa-chart-line"></i> View Usage</a></li>
+        <li class="user-nav-item active"><a href="/user/schedule/"><i class="fas fa-calendar-days"></i> Distribution Schedule</a></li>
+        <li class="user-nav-item"><a href="/user/leakage/"><i class="fas fa-triangle-exclamation"></i> Report Leakage</a></li>
+        <li class="user-nav-item"><a href="/user/notifications/"><i class="fas fa-bell"></i> Notifications</a></li>
+      </ul>
+    </aside>
+
+    <main class="user-main-content">
+      <div style="margin-bottom: 2rem;">
+        <h2><i class="fas fa-calendar-days text-cyan"></i> Water Distribution Schedules</h2>
+        <p style="color:var(--text-muted);">View automated municipal water release schedules created by the C Priority Queue distribution algorithm.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-clock text-cyan"></i> Active & Upcoming Distribution Windows</h3>
+          <span class="badge badge-allocated"><i class="fas fa-tower-broadcast"></i> Live Valve Logistics</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Schedule ID</th>
+                <th>Target Area</th>
+                <th>Source Tank</th>
+                <th>Scheduled Date</th>
+                <th>Supply Time Window</th>
+                <th>Allocated Volume</th>
+                <th>Operation Status</th>
+              </tr>
+            </thead>
+            <tbody id="schedules-table-body">
+              <tr><td colspan="7" style="text-align:center; padding:2rem; color:#94a3b8;">Loading distribution schedules...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script>
+    async function loadSchedules() {
+      try {
+        const res = await fetch('/api/distribution/schedules/');
+        const data = await res.json();
+        const tbody = document.getElementById('schedules-table-body');
+        if (data.success && data.schedules.length > 0) {
+          tbody.innerHTML = data.schedules.map(s => {
+            let statusBadge = 'badge-allocated';
+            if (s.status === 'IN_PROGRESS') statusBadge = 'badge-emergency';
+            if (s.status === 'COMPLETED') statusBadge = 'badge-completed';
+
+            return `
+              <tr>
+                <td>#${s.id}</td>
+                <td><strong>${s.area_name}</strong></td>
+                <td><span style="font-family:var(--font-mono); font-size:0.85rem; color:var(--primary-700);">${s.tank_name} (${s.tank_id_code})</span></td>
+                <td>${s.scheduled_date}</td>
+                <td><span style="font-family:var(--font-mono); font-weight:600;">${s.start_time} - ${s.end_time}</span></td>
+                <td><strong>${Number(s.allocated_quantity).toLocaleString()} L</strong></td>
+                <td><span class="badge ${statusBadge}">${s.status}</span></td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:#94a3b8;">No distribution runs currently scheduled. Admin runs algorithm daily.</td></tr>`;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadSchedules();
+  </script>
+</body>
+</html>

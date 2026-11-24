@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citizen Dashboard - Intelligent Water Distribution</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/user.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon">
+        <i class="fas fa-droplet"></i>
+      </div>
+      <div class="nav-brand-text">
+        <h1>IWDS Core</h1>
+        <p>Citizen Portal</p>
+      </div>
+    </a>
+
+    <div class="nav-user">
+      <a href="/user/notifications/" class="notif-badge-btn" title="View Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notif-counter" id="notif-counter">2</span>
+      </a>
+
+      <div class="user-profile-pill">
+        <div class="user-avatar" id="avatar-initials">R</div>
+        <div class="user-info-text">
+          <div class="user-info-name" id="profile-name">Ramya M</div>
+          <div class="user-info-role" id="profile-role">Poonamallee Resident</div>
+        </div>
+      </div>
+
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Sign Out">
+        <i class="fas fa-arrow-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main User Layout -->
+  <div class="user-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="user-sidebar">
+      <div>
+        <ul class="user-nav-menu">
+          <li class="user-nav-item active"><a href="/user/dashboard/"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
+          <li class="user-nav-item"><a href="/user/request-water/"><i class="fas fa-hand-holding-droplet"></i> Request Water</a></li>
+          <li class="user-nav-item"><a href="/user/usage/"><i class="fas fa-chart-line"></i> View Usage</a></li>
+          <li class="user-nav-item"><a href="/user/schedule/"><i class="fas fa-calendar-days"></i> Distribution Schedule</a></li>
+          <li class="user-nav-item"><a href="/user/leakage/"><i class="fas fa-triangle-exclamation"></i> Report Leakage</a></li>
+          <li class="user-nav-item"><a href="/user/notifications/"><i class="fas fa-bell"></i> Notifications</a></li>
+        </ul>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; text-align:center;">
+        <i class="fas fa-headset text-cyan" style="font-size:1.5rem; margin-bottom:0.5rem; display:inline-block;"></i>
+        <div style="font-size:0.85rem; font-weight:700;">Municipal Helpline</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">Toll-free 24/7 Water Support</div>
+        <div style="font-size:0.85rem; font-family:var(--font-mono); font-weight:700; color:var(--primary-600); margin-top:0.35rem;">1800-425-WATER</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="user-main-content">
+
+      <!-- Welcome Banner -->
+      <div class="dashboard-welcome-banner">
+        <h2>Welcome, <span id="user-welcome-name">Ramya</span></h2>
+        <p>
+          Intelligent Water Distribution System is monitoring reservoir levels and schedule logistics for your area.
+          Manage domestic consumption, view upcoming supply windows, and request additional quotas.
+        </p>
+        <div class="welcome-quick-actions">
+          <button onclick="openRequestModal()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Request Water
+          </button>
+          <button onclick="openLeakageModal()" class="btn btn-secondary" style="background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.3);">
+            <i class="fas fa-triangle-exclamation"></i> Report Leakage
+          </button>
+          <a href="/user/usage/" class="btn btn-secondary" style="background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.3);">
+            <i class="fas fa-chart-pie"></i> View Usage
+          </a>
+          <a href="/user/schedule/" class="btn btn-secondary" style="background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.3);">
+            <i class="fas fa-calendar-check"></i> View Schedule
+          </a>
+        </div>
+      </div>
+
+      <!-- Water Alert Banner (Section 36) -->
+      <div class="water-alert-banner" id="water-saving-alert-box">
+        <div class="water-alert-text">
+          <i class="fas fa-circle-exclamation" style="font-size:1.4rem; color:var(--warning);"></i>
+          <div>
+            <strong>Water Advisory in Effect:</strong> Your monthly allocated quota is in good standing. Please turn off taps tightly and report any street pipeline seepage immediately.
+          </div>
+        </div>
+        <span class="badge badge-essential">Normal Usage</span>
+      </div>
+
+      <!-- 4 Core Metric Cards (Section 7) -->
+      <div class="grid-cols-4" style="margin-bottom: 2rem;">
+        
+        <!-- 1. Water Availability -->
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Water Availability</span>
+            <div class="stat-icon blue"><i class="fas fa-water"></i></div>
+          </div>
+          <div class="stat-value" id="stat-water-avail">72%</div>
+          <div class="stat-subtext text-success">
+            <i class="fas fa-circle-check"></i> Good municipal reserves
+          </div>
+        </div>
+
+        <!-- 2. Tank Level -->
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Tank Level</span>
+            <div class="stat-icon purple"><i class="fas fa-layer-group"></i></div>
+          </div>
+          <div class="stat-value" id="stat-tank-level">68%</div>
+          <div class="stat-subtext text-muted">
+            <i class="fas fa-clock"></i> Updated 10 mins ago
+          </div>
+        </div>
+
+        <!-- 3. Today's Usage -->
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Today's Usage</span>
+            <div class="stat-icon green"><i class="fas fa-faucet-drip"></i></div>
+          </div>
+          <div class="stat-value" id="stat-today-usage">85 L</div>
+          <div class="stat-subtext text-muted">
+            Standard Daily Quota: 350 L
+          </div>
+        </div>
+
+        <!-- 4. Monthly Usage -->
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Monthly Usage</span>
+            <div class="stat-icon amber"><i class="fas fa-chart-column"></i></div>
+          </div>
+          <div class="stat-value" id="stat-month-usage">2,450 L</div>
+          <div class="stat-subtext text-muted">
+            Current billing cycle
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Upcoming Distribution & Tank Visualization -->
+      <div class="grid-cols-3" style="margin-bottom: 2rem;">
+        
+        <!-- Upcoming Distribution Schedule (2 Cols) -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-calendar-check text-cyan"></i> Upcoming Water Distribution
+            </h3>
+            <a href="/user/schedule/" class="btn btn-secondary btn-sm">Full Schedule <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Distribution Area</th>
+                  <th>Date</th>
+                  <th>Supply Time Slot</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="upcoming-schedules-body">
+                <tr>
+                  <td><strong>Poonamallee Sector 1</strong></td>
+                  <td>22 Nov</td>
+                  <td><span style="font-family:var(--font-mono);font-size:0.85rem;">06:00 AM - 08:00 AM</span></td>
+                  <td><span class="badge badge-allocated">Scheduled</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Avadi Sector 4</strong></td>
+                  <td>22 Nov</td>
+                  <td><span style="font-family:var(--font-mono);font-size:0.85rem;">08:30 AM - 10:30 AM</span></td>
+                  <td><span class="badge badge-allocated">Scheduled</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Real-Time Tank Cylinder Gauge (1 Col) -->
+        <div class="card tank-visual-card">
+          <span class="badge badge-allocated" style="margin-bottom:0.5rem;">Central Reservoir Telemetry</span>
+          <h4 style="font-size:1.05rem; margin-bottom:0.25rem;">Main Tank T001</h4>
+          <p style="font-size:0.75rem; color:var(--text-muted);">Poonamallee Main Reservoir</p>
+
+          <div class="cylinder-gauge-wrapper">
+            <div class="cylinder-water-fill" id="cylinder-gauge-fill" style="height: 68%;"></div>
+          </div>
+
+          <div class="gauge-percentage-badge" id="cylinder-gauge-pct">68%</div>
+          <div style="font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-top:0.25rem;">
+            72,000 / 100,000 Litres
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Water Requests -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-clipboard-list text-cyan"></i> My Recent Water Requests
+          </h3>
+          <button onclick="openRequestModal()" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> New Request
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Demanded Quantity</th>
+                <th>Allocated Quantity</th>
+                <th>Required Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recent-requests-body">
+              <tr>
+                <td>#101</td>
+                <td><strong>500 L</strong></td>
+                <td>400 L</td>
+                <td>2026-11-22</td>
+                <td><span class="badge badge-allocated">Allocated</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL: Request Water (Section 8) -->
+  <div class="modal-overlay" id="request-water-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-hand-holding-droplet text-cyan"></i> Request Water Supply</h3>
+        <button class="modal-close-btn" onclick="closeRequestModal()">&times;</button>
+      </div>
+
+      <form id="water-request-form">
+        <div class="form-group">
+          <label class="form-label" for="req-quantity">Required Quantity (Litres) *</label>
+          <input type="number" id="req-quantity" class="form-control" placeholder="e.g. 500" min="50" max="10000" step="50" required value="500">
+          <small style="color:var(--text-muted); font-size:0.75rem;">Standard household unit: 300 - 1000 Litres</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="req-date">Required Date *</label>
+          <input type="date" id="req-date" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="req-priority">Priority Level *</label>
+          <select id="req-priority" class="form-control" required>
+            <option value="4" selected>Priority 4 - Household / Domestic Requirement</option>
+            <option value="2">Priority 2 - Medical / Healthcare / Clinic</option>
+            <option value="1">Priority 1 - Emergency (Fire / Pipe Disaster)</option>
+            <option value="3">Priority 3 - Essential Public Service</option>
+            <option value="5">Priority 5 - Commercial / Business Unit</option>
+            <option value="6">Priority 6 - Low Priority / Gardening / Construction</option>
+          </select>
+          <small style="color:var(--text-muted); font-size:0.75rem;">C Algorithm rationalizes allocation based on priority tiers under scarcity.</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="req-reason">Reason for Request *</label>
+          <input type="text" id="req-reason" class="form-control" placeholder="e.g. Household requirement, family function, water shortage" required value="Household requirement">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeRequestModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Submit to C Queue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Report Leakage (Section 25) -->
+  <div class="modal-overlay" id="report-leakage-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-triangle-exclamation text-danger"></i> Report Pipeline Leakage</h3>
+        <button class="modal-close-btn" onclick="closeLeakageModal()">&times;</button>
+      </div>
+
+      <form id="leakage-report-form">
+        <div class="form-group">
+          <label class="form-label" for="leak-location">Location / Landmark *</label>
+          <input type="text" id="leak-location" class="form-control" placeholder="e.g. Near Lakeview Crossroad, Main Road Valve #3" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="leak-severity">Observed Severity *</label>
+          <select id="leak-severity" class="form-control" required>
+            <option value="MODERATE" selected>Moderate Leak (Puddle / Flowing Water)</option>
+            <option value="MINOR">Minor Seepage (Damp Ground / Slow Drip)</option>
+            <option value="HIGH">High Pressure Burst (Water Fountain / Road Flood)</option>
+            <option value="CRITICAL">Critical Emergency (Pipeline Structural Collapse)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="leak-desc">Description of Leakage *</label>
+          <textarea id="leak-desc" class="form-control" rows="3" placeholder="Describe the water loss, pipeline condition, and any nearby hazards..." required></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeLeakageModal()">Cancel</button>
+          <button type="submit" class="btn btn-danger"><i class="fas fa-bullhorn"></i> Submit Leak Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script src="/static/js/user.js"></script>
+  <script>
+    // Set default tomorrow date on request modal
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateInput = document.getElementById('req-date');
+    if (dateInput) dateInput.value = tomorrow.toISOString().split('T')[0];
+  </script>
+</body>
+</html>

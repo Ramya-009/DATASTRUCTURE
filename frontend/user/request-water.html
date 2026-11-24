@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Water - Intelligent Water Distribution System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/user.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon"><i class="fas fa-droplet"></i></div>
+      <div class="nav-brand-text">
+        <h1>IWDS Core</h1>
+        <p>Citizen Portal</p>
+      </div>
+    </a>
+    <div class="nav-user">
+      <a href="/user/dashboard/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="user-layout">
+    <aside class="user-sidebar">
+      <ul class="user-nav-menu">
+        <li class="user-nav-item"><a href="/user/dashboard/"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
+        <li class="user-nav-item active"><a href="/user/request-water/"><i class="fas fa-hand-holding-droplet"></i> Request Water</a></li>
+        <li class="user-nav-item"><a href="/user/usage/"><i class="fas fa-chart-line"></i> View Usage</a></li>
+        <li class="user-nav-item"><a href="/user/schedule/"><i class="fas fa-calendar-days"></i> Distribution Schedule</a></li>
+        <li class="user-nav-item"><a href="/user/leakage/"><i class="fas fa-triangle-exclamation"></i> Report Leakage</a></li>
+        <li class="user-nav-item"><a href="/user/notifications/"><i class="fas fa-bell"></i> Notifications</a></li>
+      </ul>
+    </aside>
+
+    <main class="user-main-content">
+      <div style="margin-bottom: 2rem;">
+        <h2><i class="fas fa-hand-holding-droplet text-cyan"></i> Water Supply Request</h2>
+        <p style="color:var(--text-muted);">Submit demand requests to the municipal allocation queue. The C-based priority queue will compute fair distribution.</p>
+      </div>
+
+      <div class="grid-cols-3">
+        <!-- Form (2 cols) -->
+        <div class="card" style="grid-column: span 2;">
+          <h3 class="card-title" style="margin-bottom: 1.5rem;"><i class="fas fa-file-pen text-cyan"></i> Submit Request</h3>
+          
+          <form id="dedicated-request-form">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label class="form-label" for="d-req-qty">Required Quantity (Litres) *</label>
+                <input type="number" id="d-req-qty" class="form-control" placeholder="500" min="50" max="20000" step="50" required value="500">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="d-req-date">Required Supply Date *</label>
+                <input type="date" id="d-req-date" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="d-req-prio">Category & Priority Level *</label>
+              <select id="d-req-prio" class="form-control" required>
+                <option value="4" selected>Priority 4 - Household / Domestic</option>
+                <option value="2">Priority 2 - Hospital / Healthcare</option>
+                <option value="1">Priority 1 - Emergency Requirement</option>
+                <option value="3">Priority 3 - Essential Public Service</option>
+                <option value="5">Priority 5 - Commercial / Business</option>
+                <option value="6">Priority 6 - Low Priority / Gardening</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="d-req-reason">Requirement Purpose / Reason *</label>
+              <textarea id="d-req-reason" class="form-control" rows="3" placeholder="e.g. Household domestic requirement, routine tank refill" required>Household requirement</textarea>
+            </div>
+
+            <button type="submit" id="btn-submit-req" class="btn btn-primary" style="padding: 0.8rem 1.75rem;">
+              <i class="fas fa-paper-plane"></i> Submit to C Priority Queue
+            </button>
+          </form>
+        </div>
+
+        <!-- Priority Info Guide (1 col) -->
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fas fa-circle-info text-cyan"></i> Priority Tiers</h3>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            When available water is less than total municipal demand, the C engine processes requests using this strict order:
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.82rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.6rem; background:#fee2e2; border-radius:var(--radius-sm);">
+              <strong>Priority 1: Emergency</strong>
+              <span class="badge badge-emergency">100% Guaranteed</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.6rem; background:#ede9fe; border-radius:var(--radius-sm);">
+              <strong>Priority 2: Hospital</strong>
+              <span class="badge badge-hospital">100% Guaranteed</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.6rem; background:#fef3c7; border-radius:var(--radius-sm);">
+              <strong>Priority 3: Essential</strong>
+              <span class="badge badge-essential">Up to 90%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.6rem; background:#e0f2fe; border-radius:var(--radius-sm);">
+              <strong>Priority 4: Household</strong>
+              <span class="badge badge-household">Up to 75%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.6rem; background:#dcfce7; border-radius:var(--radius-sm);">
+              <strong>Priority 5: Commercial</strong>
+              <span class="badge badge-commercial">Up to 50%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Requests History -->
+      <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-clock-rotate-left text-cyan"></i> My Request History</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Req ID</th>
+                <th>Priority</th>
+                <th>Demanded</th>
+                <th>Allocated</th>
+                <th>Requested Date</th>
+                <th>Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="user-all-requests-body">
+              <tr><td colspan="7" style="text-align:center; padding:1.5rem; color:#94a3b8;">Loading requests...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script>
+    const tmr = new Date();
+    tmr.setDate(tmr.getDate() + 1);
+    document.getElementById('d-req-date').value = tmr.toISOString().split('T')[0];
+
+    async function loadRequests() {
+      try {
+        const res = await fetch('/api/water/requests/');
+        const data = await res.json();
+        const tbody = document.getElementById('user-all-requests-body');
+        if (data.success && data.requests.length > 0) {
+          tbody.innerHTML = data.requests.map(r => `
+            <tr>
+              <td>#${r.id}</td>
+              <td><span class="badge badge-${r.priority === 1 ? 'emergency' : r.priority === 2 ? 'hospital' : r.priority === 3 ? 'essential' : r.priority === 4 ? 'household' : 'commercial'}">Priority ${r.priority}</span></td>
+              <td><strong>${r.requested_quantity} L</strong></td>
+              <td>${r.allocated_quantity > 0 ? '<strong>' + r.allocated_quantity + ' L</strong>' : '-'}</td>
+              <td>${r.request_date}</td>
+              <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.reason}</td>
+              <td><span class="badge ${r.status === 'ALLOCATED' || r.status === 'APPROVED' ? 'badge-allocated' : r.status === 'REJECTED' ? 'badge-rejected' : 'badge-pending'}">${r.status}</span></td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:#94a3b8;">No requests found. Submit a new request above!</td></tr>`;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    document.getElementById('dedicated-request-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        requested_quantity: parseFloat(document.getElementById('d-req-qty').value),
+        request_date: document.getElementById('d-req-date').value,
+        priority: parseInt(document.getElementById('d-req-prio').value),
+        reason: document.getElementById('d-req-reason').value
+      };
+
+      const btn = document.getElementById('btn-submit-req');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Queuing...';
+
+      try {
+        const res = await fetch('/api/water/requests/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('Water request submitted successfully! Awaiting C allocation.', 'success');
+          loadRequests();
+        } else {
+          showToast(d.message || 'Error submitting request', 'danger');
+        }
+      } catch (err) {
+        showToast('Error communicating with server', 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit to C Priority Queue';
+      }
+    });
+
+    loadRequests();
+  </script>
+</body>
+</html>

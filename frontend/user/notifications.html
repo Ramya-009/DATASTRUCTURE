@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications - Intelligent Water Distribution</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/user.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon"><i class="fas fa-droplet"></i></div>
+      <div class="nav-brand-text">
+        <h1>IWDS Core</h1>
+        <p>Citizen Portal</p>
+      </div>
+    </a>
+    <div class="nav-user">
+      <a href="/user/dashboard/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button onclick="Auth.logout()" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="user-layout">
+    <aside class="user-sidebar">
+      <ul class="user-nav-menu">
+        <li class="user-nav-item"><a href="/user/dashboard/"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
+        <li class="user-nav-item"><a href="/user/request-water/"><i class="fas fa-hand-holding-droplet"></i> Request Water</a></li>
+        <li class="user-nav-item"><a href="/user/usage/"><i class="fas fa-chart-line"></i> View Usage</a></li>
+        <li class="user-nav-item"><a href="/user/schedule/"><i class="fas fa-calendar-days"></i> Distribution Schedule</a></li>
+        <li class="user-nav-item"><a href="/user/leakage/"><i class="fas fa-triangle-exclamation"></i> Report Leakage</a></li>
+        <li class="user-nav-item active"><a href="/user/notifications/"><i class="fas fa-bell"></i> Notifications</a></li>
+      </ul>
+    </aside>
+
+    <main class="user-main-content">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 2rem;">
+        <div>
+          <h2><i class="fas fa-bell text-cyan"></i> Notifications & Broadcasts</h2>
+          <p style="color:var(--text-muted);">Stay informed on water release schedules, valve openings, rationing alerts, and request updates.</p>
+        </div>
+        <button onclick="markAllRead()" class="btn btn-secondary btn-sm">
+          <i class="fas fa-check-double"></i> Mark All as Read
+        </button>
+      </div>
+
+      <div id="notifications-list-container">
+        <!-- Notification Cards Render Here -->
+        <div style="text-align:center; padding:3rem; color:#94a3b8;">Loading alerts...</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+  <script>
+    async function loadNotifications() {
+      try {
+        const res = await fetch('/api/notifications/');
+        const data = await res.json();
+        const container = document.getElementById('notifications-list-container');
+        if (data.success && data.notifications.length > 0) {
+          container.innerHTML = data.notifications.map(n => {
+            let icon = 'info-circle';
+            let iconBg = '#e0f2fe';
+            let iconColor = '#0284c7';
+
+            if (n.notification_type === 'ALERT') {
+              icon = 'triangle-exclamation';
+              iconBg = '#fef3c7';
+              iconColor = '#b45309';
+            } else if (n.notification_type === 'SCHEDULE') {
+              icon = 'calendar-check';
+              iconBg = '#ecfdf5';
+              iconColor = '#059669';
+            } else if (n.notification_type === 'EMERGENCY') {
+              icon = 'fire-extinguisher';
+              iconBg = '#fee2e2';
+              iconColor = '#dc2626';
+            }
+
+            return `
+              <div class="notification-card ${n.is_read ? '' : 'unread'}" id="notif-${n.id}">
+                <div class="notif-icon-box" style="background:${iconBg}; color:${iconColor};">
+                  <i class="fas fa-${icon}"></i>
+                </div>
+                <div class="notif-body">
+                  <div class="notif-header">
+                    <span class="notif-title">${n.title}</span>
+                    <span class="notif-time">${new Date(n.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <div class="notif-msg">${n.message}</div>
+                </div>
+                ${!n.is_read ? `
+                  <button onclick="markSingleRead(${n.id})" class="btn btn-secondary btn-sm" style="align-self:center;" title="Mark as Read">
+                    <i class="fas fa-check"></i>
+                  </button>
+                ` : ''}
+              </div>
+            `;
+          }).join('');
+        } else {
+          container.innerHTML = `<div class="card" style="text-align:center; padding:3rem; color:#94a3b8;">No notifications found. You're all caught up!</div>`;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function markSingleRead(id) {
+      try {
+        await fetch(`/api/notifications/${id}/read/`, { method: 'PUT' });
+        showToast('Notification marked as read', 'success');
+        loadNotifications();
+      } catch (e) {
+        showToast('Error updating notification', 'danger');
+      }
+    }
+
+    async function markAllRead() {
+      try {
+        await fetch('/api/notifications/read-all/', { method: 'POST' });
+        showToast('All notifications marked as read', 'success');
+        loadNotifications();
+      } catch (e) {
+        showToast('Error updating notifications', 'danger');
+      }
+    }
+
+    loadNotifications();
+  </script>
+</body>
+</html>
